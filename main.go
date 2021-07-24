@@ -16,6 +16,8 @@ var (
 	debug = func(args ...interface{}) { if DEBUG { fmt.Print(args) } }
 )
 
+func TunnelServer(_ws, conn net.Conn) { Tunnel(ws.StateServerSide, _ws, conn) }
+func TunnelClient(_ws, conn net.Conn) { Tunnel(ws.StateClientSide, _ws, conn) }
 func Tunnel(side ws.State, _ws, conn net.Conn) {
 	close := func() { _ws.Close(); conn.Close() }
 	wsRead, wsWrite := map[ws.State]func(rw io.ReadWriter) ([]byte, error){
