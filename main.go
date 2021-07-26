@@ -75,19 +75,18 @@ func IOLoop(side ws.State, _ws, conn net.Conn) {
 
 type TunnelHandler struct {
 	http.Handler
-	network, address string
+	open func() net.Conn
 }
 
 func (h *TunnelHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_ws, _, _, err := ws.UpgradeHTTP(r, w)
 	if err != nil {
-		debug("TunnelHandler:ServeHTTP:ws:UpgradeHTTP", err)
+		debug("TunnelHandler:ws:UpgradeHTTP", err)
 		return
 	}
 
-	conn, err := net.Dial(h.network, h.address)
-	if err != nil {
-		debug("TunnelHandler:ServeHTTP:net:Dial", err)
+	conn := h.open()
+	if conn == nil {
 		_ws.Close()
 		return
 	}
@@ -95,8 +94,8 @@ func (h *TunnelHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ServerSide(_ws, conn)
 }
 
-func NewTunnelHandler(network, address string) *TunnelHandler {
-	return &TunnelHandler{nil, network, address}
+func NewTunnelHandler(open func() net.Conn) *TunnelHandler {
+	return &TunnelHandler{nil, open}
 }
 
 func Tunnel(conn net.Conn, urlstr string) {
