@@ -1,5 +1,5 @@
 module marxus.github.io/go/wstunnel
 
-go 1.16
+go 1.19
 
-require github.com/gobwas/ws v1.1.0
+require golang.org/x/net v0.2.0
